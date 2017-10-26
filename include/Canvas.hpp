@@ -10,16 +10,22 @@ namespace Gilvapaint {
 	unsigned int    m_dimen[2];
 	unsigned short  m_bpp;
 	uint8_t        *m_content;
-	uint32_t        m_currentColor[2] = {0, 0};
+	uint64_t        m_currentColor[2] = {0, 0};
 	
 	Canvas(unsigned int width, unsigned int height, unsigned short bpp) noexcept; // Default Constructor
+
+	int correctPosition(int position) const noexcept;
+	
+	// --- Unsafe Operations
+	
+	
   public:
 	// --- Memory Management
-	static Canvas BPP8(unsigned int width, unsigned int height)  noexcept; // 8bits  per pixel image
-	static Canvas BPP24(unsigned int width, unsigned int height) noexcept; // 24bits per pixel image
-	static Canvas BPP32(unsigned int width, unsigned int height) noexcept; // 32bits per pixel image
+	Canvas(unsigned int width, unsigned int height)              noexcept; // Default Constructor
 	Canvas(const Canvas& that)                                   noexcept; // Assign Constructor
-	~Canvas()                                                    noexcept; // Desctructor
+	static Canvas BPP8(unsigned int width, unsigned int height)  noexcept; // 8bits  per pixel image
+	static Canvas BPP32(unsigned int width, unsigned int height) noexcept; // 32bits per pixel image
+	~Canvas()                                                    noexcept; // Destructor
 
 	
 	
@@ -34,6 +40,7 @@ namespace Gilvapaint {
 	inline unsigned short bitsPerPixel()      const noexcept;
 	inline unsigned short bytesPerPixel()     const noexcept;
 	inline uint32_t       pixel(int position) const noexcept;
+	inline uint32_t       pixel(int x, int y) const noexcept;
 
 
 	
@@ -41,6 +48,7 @@ namespace Gilvapaint {
 	inline Canvas& lineColor(uint32_t color)           noexcept;
 	inline Canvas& fillColor(uint32_t color)           noexcept;
 	inline Canvas& pixel(int position, uint32_t color) noexcept;
+	inline Canvas& pixel(int x, int y, uint32_t color) noexcept;
 	
 
 
@@ -87,7 +95,7 @@ uint32_t
 Gilvapaint::Canvas::pixel (int position) const noexcept {
   uint32_t out = 0;
   
-  position = position%size();
+  position = correctPosition(position);
 
   switch( bitsPerPixel() ){
   case 8:
@@ -104,6 +112,29 @@ Gilvapaint::Canvas::pixel (int position) const noexcept {
   }
 
   return out;
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+uint32_t
+Gilvapaint::Canvas::pixel (int x, int y) const noexcept {
+  int position = x*width()+y;
+  position = correctPosition(position);
+  
+  switch( bitsPerPixel() ){
+  case 8:
+	return m_content[position];
+    break;
+
+  case 32:
+	return (m_content[position]<<3) | (m_content[position+1]<<2) | (m_content[position+2]<<1) | m_content[position+3];
+	break;
+
+  case 24: default:
+	return (m_content[position]<<2) | (m_content[position+1]<<1) | m_content[position+2];
+	break;
+  }
+
 }
 //-----------------------------------------------------------------------------
 
@@ -129,21 +160,21 @@ Gilvapaint::Canvas::fillColor(uint32_t color) noexcept {
 //-----------------------------------------------------------------------------
 Gilvapaint::Canvas&
 Gilvapaint::Canvas::pixel (int position, uint32_t color) noexcept {
-  position = position%size();
+  position = static_cast<int>( correctPosition(position) );
 
-  /*switch( bitsPerPixel() ){
-  case 8:
-	m_content[position];
-    break;
+  m_content[position] = color;
 
-  case 24:
-	out = (m_content[position]<<2) | (m_content[position+1]<<1) | m_content[position+2];
-	break;
+  return *this;
+}
+//-----------------------------------------------------------------------------
 
-  case 32:
-	out = (m_content[position]<<3) | (m_content[position+1]<<2) | (m_content[position+2]<<1) | m_content[position+3];
-	break;
-  }*/
+//-----------------------------------------------------------------------------
+Gilvapaint::Canvas&
+Gilvapaint::Canvas::pixel (int x, int y, uint32_t color) noexcept {
+  int position = x*width()+y;
+  position = static_cast<int>( correctPosition(position) );
+
+  m_content[position] = color;
 
   return *this;
 }

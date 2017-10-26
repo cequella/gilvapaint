@@ -12,16 +12,15 @@ Gilvapaint::Canvas::Canvas(unsigned int width, unsigned int height, unsigned sho
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-Gilvapaint::Canvas
-Gilvapaint::Canvas::BPP8(unsigned int width, unsigned int height) noexcept {
-  return Gilvapaint::Canvas(width, height, 8);
-}
+Gilvapaint::Canvas::Canvas(unsigned int width, unsigned int height) noexcept
+  : Gilvapaint::Canvas(width, height, 24)
+{}
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 Gilvapaint::Canvas
-Gilvapaint::Canvas::BPP24(unsigned int width, unsigned int height) noexcept {
-  return Gilvapaint::Canvas(width, height, 24);
+Gilvapaint::Canvas::BPP8(unsigned int width, unsigned int height) noexcept {
+  return Gilvapaint::Canvas(width, height, 8);
 }
 //-----------------------------------------------------------------------------
 
@@ -70,7 +69,29 @@ Gilvapaint::Canvas::operator = (const Canvas& that) noexcept {
 
 
 // --- Methods
+//-----------------------------------------------------------------------------
+int
+Gilvapaint::Canvas::correctPosition(int position) const noexcept {
+  const int thisSize = static_cast<int>( size() );
+  
+  if( position>0 and position<thisSize ){
+	return position;
+  }
+  if( position>thisSize ) {
+	return ( position%thisSize );
+  }
+
+  return (thisSize - position%thisSize);
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
 Gilvapaint::Canvas&
 Gilvapaint::Canvas::clear(uint32_t color) noexcept {
+  for(int i=0; i< size(); i++) {
+	
+  }
+  
   return *this; 
 }
+//-----------------------------------------------------------------------------
