@@ -1,14 +1,17 @@
 #include <iostream>
-#include <cstdint>
-#include <cmath>
+
+#include "Canvas.hpp"
+
+using namespace std;
 
 int main(){
-  std::cout << "Ola, mundo" << std::endl;
-
-  int a = -722;
-  a = abs(a)%360;
-
-  std::cout << a << std::endl;
+  Gilvapaint::Canvas canvas = Gilvapaint::Canvas::BPP8(8, 8);
+  
+  canvas.clear(0)
+    .lineColor(1)
+    .horizontalLine(2, -1, 12)
+    .verticalLine(7, 3, 40);
+  canvas.draw();
   
   return 0;
 }

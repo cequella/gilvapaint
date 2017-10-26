@@ -7,8 +7,11 @@ SRC= src/
 BIN= bin/
 INC= include/
 
-all:
-	${CC} ${CPPFLAGS} ${SRC}main.cpp -o ${BIN}gilvapaint
+all: Canvas.o
+	${CC} ${CPPFLAGS} ${SRC}main.cpp -o ${BIN}gilvapaint ${OBJ}*
+
+run:
+	@./bin/gilvapaint
 
 # ===================== Image.o ========================
 Canvas.o:
