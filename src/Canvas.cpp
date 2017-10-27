@@ -141,7 +141,7 @@ Gilvapaint::Canvas::clear(uint32_t color) noexcept {
 Gilvapaint::Canvas&
 Gilvapaint::Canvas::horizontalLine(int y, int xStart, int xEnd) noexcept {
   if( y<0 or y>=static_cast<int>(height()) ) return *this;
-  const int thisWidth = static_cast<int>( width() );
+  const int thisWidth = static_cast<int>( height() );
 
   // Clamp x coord to [ 0, width() )
   if( xStart<0 or xStart>thisWidth ){
@@ -185,7 +185,8 @@ Gilvapaint::Canvas::verticalLine(int x, int yStart, int yEnd) noexcept {
 Gilvapaint::Canvas&
 Gilvapaint::Canvas::rectangle(int x, int y, int width, int height) noexcept {
   if(width==0 or height==0) return *this;
-  
+
+  return *this;
 }
 //-----------------------------------------------------------------------------
 
