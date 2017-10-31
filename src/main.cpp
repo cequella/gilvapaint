@@ -5,13 +5,12 @@
 using namespace std;
 
 int main(){
-  Gilvapaint::Canvas canvas = Gilvapaint::Canvas::BPP8(8, 8);
+  Gilvapaint::Canvas canvas = Gilvapaint::Canvas(8, 8);
   
-  canvas.clear(0)
-    .lineColor(9)
-    .horizontalLine(2, 0, 8);
-    //.verticalLine(3, -1, 40);
-  canvas.draw();
+  canvas.clear('0')
+	.lineColor('1')
+	.rectangle(1, 1, 3, 4)
+	.draw();
   
   return 0;
 }
