@@ -6,7 +6,7 @@
 #include <iostream> // --- Temp
 #include <algorithm>
 
-namespace Gilvapaint {
+namespace GilvaPaint {
 
   enum class BPP : short {MONOCHROME=1, RGB=3, ARGB=4};
   
@@ -76,27 +76,27 @@ namespace Gilvapaint {
 // --- Getters
 //-----------------------------------------------------------------------------
 int
-Gilvapaint::Canvas::width()  const noexcept { return m_dimen[0]; }
+GilvaPaint::Canvas::width()  const noexcept { return m_dimen[0]; }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 int
-Gilvapaint::Canvas::height() const noexcept { return m_dimen[1]; }
+GilvaPaint::Canvas::height() const noexcept { return m_dimen[1]; }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 int
-Gilvapaint::Canvas::size() const noexcept { return width()*height(); }
+GilvaPaint::Canvas::size() const noexcept { return width()*height(); }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 short
-Gilvapaint::Canvas::bytesPerPixel() const noexcept { return static_cast<short>(m_bpp); }
+GilvaPaint::Canvas::bytesPerPixel() const noexcept { return static_cast<short>(m_bpp); }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 uint8_t
-Gilvapaint::Canvas::pixel (int position) const noexcept {
+GilvaPaint::Canvas::pixel (int position) const noexcept {
   position = correctPosition(position);
   return m_content[position];
 }
@@ -104,7 +104,7 @@ Gilvapaint::Canvas::pixel (int position) const noexcept {
 
 //-----------------------------------------------------------------------------
 uint8_t
-Gilvapaint::Canvas::pixel (int x, int y) const noexcept {
+GilvaPaint::Canvas::pixel (int x, int y) const noexcept {
   return pixel(x+ y*width());
 }
 //-----------------------------------------------------------------------------
@@ -113,24 +113,24 @@ Gilvapaint::Canvas::pixel (int x, int y) const noexcept {
 
 // --- Setters
 //-----------------------------------------------------------------------------
-Gilvapaint::Canvas&
-Gilvapaint::Canvas::lineColor(uint8_t color) noexcept {
+GilvaPaint::Canvas&
+GilvaPaint::Canvas::lineColor(uint8_t color) noexcept {
   m_currentColor[0] = color;
   return *this;
 }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-Gilvapaint::Canvas&
-Gilvapaint::Canvas::fillColor(uint8_t color) noexcept {
+GilvaPaint::Canvas&
+GilvaPaint::Canvas::fillColor(uint8_t color) noexcept {
   m_currentColor[1] = color;
   return *this;
 }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-Gilvapaint::Canvas&
-Gilvapaint::Canvas::pixel (int position, uint8_t color) noexcept {
+GilvaPaint::Canvas&
+GilvaPaint::Canvas::pixel (int position, uint8_t color) noexcept {
   position = static_cast<int>( correctPosition(position) );
 
   m_content[position] = color;
@@ -140,8 +140,8 @@ Gilvapaint::Canvas::pixel (int position, uint8_t color) noexcept {
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-Gilvapaint::Canvas&
-Gilvapaint::Canvas::pixel (int x, int y, uint8_t color) noexcept {
+GilvaPaint::Canvas&
+GilvaPaint::Canvas::pixel (int x, int y, uint8_t color) noexcept {
   int position = x*width()+y;
   position = static_cast<int>( correctPosition(position) );
 
