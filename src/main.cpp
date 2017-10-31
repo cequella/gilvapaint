@@ -20,8 +20,9 @@ int main(int, char**){
   canvas
     .clear(' ')
     .lineColor('0')
-    .line(0, 0, 15, 10) //Primeiro octante
-    .line(0, 0, 10, 15) //Segundo octante
+    //.line(0, 0, 15, 10) //Primeiro octante
+    //.line(0, 0, 10, 15) //Segundo octante
+    .line(0, 15, 10, 0)
     .draw();
 
   cout << endl << endl;

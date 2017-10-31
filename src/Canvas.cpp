@@ -204,7 +204,7 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
   const int dy = y2-y1; // =a
 
   int px=x1, py=y1, dM;
-  if(dx>0){
+  if(dy>0){
     dM=2*dy-dx;
     
     if(dy<=dx){
@@ -235,10 +235,26 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
     
     }
   } else {
-    if(dy<=dx){
-      /* Quarto octante */
-    } else {
+    std::cout << "terceiro quarto" << std::endl;
+    
+    dM = -dy-2*dx;
+    
+    if(dx>=dy){
+      std::cout << "terceiro" << std::endl;
+      
       /* Terceiro octante */
+      for(; py<=y2; py++){
+	setPixel(px, py, m_currentColor[0]);
+	if(dM>0){
+	  px++;
+	  dM += -2*(dy+dx);
+	} else {
+	  dM -= 2*dx;
+	}
+      }
+      
+    } else {
+      /* Quarto octante */
     }
   }
   
