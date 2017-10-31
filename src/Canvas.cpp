@@ -198,6 +198,31 @@ Gilvapaint::Canvas::rectangle(int x, int y, int t_width, int t_height) noexcept 
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
+Gilvapaint::Canvas&
+Gilvapaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
+  const int dx = x2-x1; // =a
+  const int dy = y2-y1; // =-b
+  //const int c  = y1*x2-y2*x1;
+
+  int px=x1, py=y1, dM=2*dy-dx;
+  for(; px<=x2; px++){
+	setPixel(px, py, m_currentColor[0]);
+	if(dM>0){
+	  py++;
+	  if(py==height()) break; // Clipping
+	  dM += 2*(dy-dx);
+	} else {
+	  dM += 2*dy;
+	}
+
+	if(px==width()) break;
+  }
+  
+  return *this;
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
 void
 Gilvapaint::Canvas::draw() const noexcept {
   for(int line=0; line<height(); line++){

@@ -61,10 +61,11 @@ namespace Gilvapaint {
 
 
     // --- Methods
-    Canvas& clear(uint8_t color)                          noexcept;
+    Canvas& clear(uint8_t color)                           noexcept;
     Canvas& horizontalLine(int y, int xStart, int xEnd)    noexcept;
     Canvas& verticalLine(int x, int yStart, int yEnd)      noexcept;
     Canvas& rectangle(int x, int y, int width, int height) noexcept;
+	Canvas& line(int x1, int y1, int x2, int y2)           noexcept;
     void    draw()                                         const noexcept;
   };
   
