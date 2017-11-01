@@ -19,10 +19,14 @@ int main(int, char**){
   
   canvas
     .clear(' ')
-    .lineColor('0')
-    //.line(0, 0, 15, 10) //Primeiro octante
-    //.line(0, 0, 10, 15) //Segundo octante
-    .line(0, 15, 10, 0)
+    .lineColor('1')
+    .line(0, 0, 15, 10) //Primeiro octante
+	.lineColor('2')
+    .line(0, 0, 10, 15) //Segundo octante
+	.lineColor('3')
+    .line(15, 0, 3, 15) //Terceiro octante
+	.lineColor('4')
+	.line(15, 0, 0, 10) //Quarto octante
     .draw();
 
   cout << endl << endl;
@@ -51,9 +55,9 @@ int startSDL(){
   }
 
   window = SDL_CreateWindow(SCREEN_TITLE,
-			    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			    SCREEN_WIDTH, SCREEN_HEIGHT,
-			    SCREEN_FLAGS);
+							SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+							SCREEN_WIDTH, SCREEN_HEIGHT,
+							SCREEN_FLAGS);
   if( window==NULL ){
     cerr << SDL_GetError() << endl;
     return 1;

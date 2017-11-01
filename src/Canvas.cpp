@@ -5,15 +5,15 @@
 // --- Memory Management
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(unsigned int width, unsigned int height, BPP canvasBPP) noexcept
-: m_dimen{static_cast<int>(width), static_cast<int>(height)},
-  m_bpp(canvasBPP),
-  m_content( new uint8_t[size()*bytesPerPixel()] )
+  : m_dimen{static_cast<int>(width), static_cast<int>(height)},
+	m_bpp(canvasBPP),
+	m_content( new uint8_t[size()*bytesPerPixel()] )
 {}
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(unsigned int width, unsigned int height) noexcept
-: GilvaPaint::Canvas(width, height, BPP::MONOCHROME)
+  : GilvaPaint::Canvas(width, height, BPP::MONOCHROME)
 {}
 //-----------------------------------------------------------------------------
 
@@ -40,9 +40,9 @@ GilvaPaint::Canvas::Canvas(unsigned int width, unsigned int height) noexcept
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(const Canvas& that) noexcept
-: m_dimen{that.width(), that.height()},
-  m_bpp( static_cast<BPP>(that.bytesPerPixel()) ),
-  m_content( new uint8_t[size()*bytesPerPixel()] )
+  : m_dimen{that.width(), that.height()},
+	m_bpp( static_cast<BPP>(that.bytesPerPixel()) ),
+	m_content( new uint8_t[size()*bytesPerPixel()] )
 {
   //for(unsigned int i=0; i<that.size(); i++) m_content[i]=that.m_content[i];
   memcpy(m_content, that.m_content, that.size()*that.bytesPerPixel());
@@ -204,57 +204,56 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
   const int dy = y2-y1; // =a
 
   int px=x1, py=y1, dM;
-  if(dy>0){
+  if( dx > 0 ){
     dM=2*dy-dx;
     
-    if(dy<=dx){
+    if( dy<=dx ){
 
       /* Primeiro octante */
       for(; px<=x2; px++){
-	setPixel(px, py, m_currentColor[0]);
-	if(dM>0){
-	  py++;
-	  dM += 2*(dy-dx); // Move right
-	} else {
-	  dM += 2*dy; // Move up-right
-	}
+		setPixel(px, py, m_currentColor[0]);
+		if(dM>0){
+		  py++;
+		  dM += 2*(dy-dx); // Move right
+		} else {
+		  dM += 2*dy; // Move up-right
+		}
       }
     
     } else { 
 
       /* Segundo octante */
       for(; py<=y2; py++){
-	setPixel(px, py, m_currentColor[0]);
-	if(dM>0){
-	  dM -= 2*dx; // Move up
-	} else {
-	  px++;
-	  dM += 2*(dy-dx); // Move up-right
-	}
+		setPixel(px, py, m_currentColor[0]);
+		if(dM>0){
+		  dM -= 2*dx; // Move up
+		} else {
+		  px++;
+		  dM += 2*(dy-dx); // Move up-right
+		}
       }
     
     }
   } else {
-    std::cout << "terceiro quarto" << std::endl;
-    
     dM = -dy-2*dx;
     
-    if(dx>=dy){
-      std::cout << "terceiro" << std::endl;
+    if( abs(dx)<=abs(dy) ){
       
       /* Terceiro octante */
-      for(; py<=y2; py++){
-	setPixel(px, py, m_currentColor[0]);
-	if(dM>0){
-	  px++;
-	  dM += -2*(dy+dx);
-	} else {
-	  dM -= 2*dx;
-	}
-      }
+	  for(; py<=y2; py++){
+		setPixel(px, py, m_currentColor[0]);
+		if(dM>0){
+		  px--;
+		  dM += -2*dy-2*dx;
+		} else {
+		  dM += -2*dx;
+		}
+	  }
       
     } else {
+	  
       /* Quarto octante */
+
     }
   }
   
