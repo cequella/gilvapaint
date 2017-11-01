@@ -205,10 +205,16 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
     std::swap(y1, y2);
   }
 
-  const int dx = x2-x1; // =-b
-  const int dy = y2-y1; // =a
-  
+  const int dx = x2-x1;
+  const int dy = y2-y1;
   int px=x1, py=y1, dM;
+
+  auto moveUpRight = [&dM, dx, dy](){ dM += 2*(dy-dx); };
+  auto moveRight   = [&dM, dy](){ dM += 2*dy; };
+  auto moveUp      = [&dM, dx](){ dM -= 2*dx; };
+  auto moveUpLeft  = [&dM, dx, dy](){ dM -= 2*(dy+dx); };
+  auto moveLeft    = [&dM, dy](){ dM-=2*dy; };
+  
   if( dx > 0 ){
 
     if( dy<=dx ){
@@ -219,9 +225,9 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
 	setPixel(px, py, m_currentColor[0]);
 	if(dM>0){
 	  py++;
-	  dM += 2*(dy-dx); // Move right
+	  moveUpRight();
 	} else {
-	  dM += 2*dy; // Move up-right
+	  moveRight();
 	}
       }
     
@@ -232,10 +238,10 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       for(; py<=y2; py++){
 	setPixel(px, py, m_currentColor[0]);
 	if(dM>0){
-	  dM -= 2*dx; // Move up
+	  moveUp();
 	} else {
 	  px++;
-	  dM += 2*(dy-dx); // Move up-right
+	  moveUpRight();
 	}
       }
     
@@ -250,9 +256,9 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
 	setPixel(px, py, m_currentColor[0]);
 	if(dM>0){
 	  px--;
-	  dM -= 2*(dy+dx); // Move up-left
+	  moveUpLeft();
 	} else {
-	  dM -= 2*dx; // Move up
+	  moveUp();
 	}
       }
       
@@ -263,10 +269,10 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       for(; px>=x2; px--){
 	setPixel(px, py, m_currentColor[0]);
 	if(dM>0){
-	  dM-=2*dy;
+	  moveLeft();
 	} else {
 	  py++;
-	  dM-=2*(dy+dx);
+	  moveUpLeft();
 	}
       }
       
