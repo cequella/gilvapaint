@@ -18,33 +18,11 @@ GilvaPaint::Canvas::Canvas(unsigned int width, unsigned int height) noexcept
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-/*GilvaPaint::Canvas
-  GilvaPaint::Canvas::BPP8(unsigned int width, unsigned int height) noexcept {
-  return GilvaPaint::Canvas(width, height, 8);
-  }*/
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-/*GilvaPaint::Canvas
-  GilvaPaint::Canvas::BPP24(unsigned int width, unsigned int height) noexcept {
-  return GilvaPaint::Canvas(width, height, 24);
-  }*/
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-/*GilvaPaint::Canvas
-  GilvaPaint::Canvas::BPP32(unsigned int width, unsigned int height) noexcept {
-  return GilvaPaint::Canvas(width, height, 32);
-  }*/
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(const Canvas& that) noexcept
 : m_dimen{that.width(), that.height()},
   m_bpp( static_cast<BPP>(that.bytesPerPixel()) ),
   m_content( new uint8_t[size()*bytesPerPixel()] )
 {
-  //for(unsigned int i=0; i<that.size(); i++) m_content[i]=that.m_content[i];
   memcpy(m_content, that.m_content, that.size()*that.bytesPerPixel());
 }
 //-----------------------------------------------------------------------------
@@ -67,7 +45,7 @@ GilvaPaint::Canvas::operator = (const Canvas& that) noexcept {
   m_bpp      = static_cast<BPP>( that.bytesPerPixel() );
 
   m_content = new uint8_t[size()*bytesPerPixel()];
-  //for(unsigned int i=0; i<that.size(); i++) m_content[i]=that.m_content[i];
+
   memcpy(m_content, that.m_content, that.size()*that.bytesPerPixel());
   
   return *this;
@@ -146,7 +124,7 @@ GilvaPaint::Canvas::horizontalLine(int y, int xStart, int xEnd) noexcept {
     xEnd = temp;
   }
 
-  for(int i=xStart; i<=xEnd; i++) setPixel(i, y, m_currentColor[0]);
+  for(int i=xStart; i<=xEnd; i++) setPixel(i, y, lineColor());
   
   return *this;
 }
@@ -167,7 +145,7 @@ GilvaPaint::Canvas::verticalLine(int x, int yStart, int yEnd) noexcept {
     yEnd = temp;
   }
 
-  for(int i=yStart; i<=yEnd; i++) setPixel(x, i, m_currentColor[0]);
+  for(int i=yStart; i<=yEnd; i++) setPixel(x, i, lineColor());
 
   return *this;
 }
@@ -200,6 +178,7 @@ GilvaPaint::Canvas::rectangle(int x, int y, int t_width, int t_height) noexcept 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas&
 GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
+  // If delta Y is negative, swap value. Simetry properties.
   if(y2<y1) {
     std::swap(x1, x2);
     std::swap(y1, y2);
@@ -209,11 +188,11 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
   const int dy = y2-y1;
   int px=x1, py=y1, dM;
 
-  auto moveUpRight = [&dM, dx, dy](){ dM += 2*(dy-dx); };
   auto moveRight   = [&dM, dy](){ dM += 2*dy; };
+  auto moveUpRight = [&dM, dx, dy](){ dM += 2*(dy-dx); };
   auto moveUp      = [&dM, dx](){ dM -= 2*dx; };
   auto moveUpLeft  = [&dM, dx, dy](){ dM -= 2*(dy+dx); };
-  auto moveLeft    = [&dM, dy](){ dM-=2*dy; };
+  auto moveLeft    = [&dM, dy](){ dM -= 2*dy; };
   
   if( dx > 0 ){
 
@@ -222,7 +201,7 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Primeiro octante */
       dM=2*dy-dx;
       for(; px<=x2; px++){
-	setPixel(px, py, m_currentColor[0]);
+	setPixel(px, py, lineColor());
 	if(dM>0){
 	  py++;
 	  moveUpRight();
@@ -236,7 +215,7 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Segundo octante */
       dM=dy-2*dx;
       for(; py<=y2; py++){
-	setPixel(px, py, m_currentColor[0]);
+	setPixel(px, py, lineColor());
 	if(dM>0){
 	  moveUp();
 	} else {
@@ -253,7 +232,7 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Terceiro octante */
       dM=-2*dx-dy;
       for(; py<=y2; py++){
-	setPixel(px, py, m_currentColor[0]);
+	setPixel(px, py, lineColor());
 	if(dM>0){
 	  px--;
 	  moveUpLeft();
@@ -267,7 +246,7 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Quarto octante */
       dM=-2*dy-dx;
       for(; px>=x2; px--){
-	setPixel(px, py, m_currentColor[0]);
+	setPixel(px, py, lineColor());
 	if(dM>0){
 	  moveLeft();
 	} else {
@@ -279,6 +258,34 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
     }
   }
   
+  return *this;
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+GilvaPaint::Canvas&
+GilvaPaint::Canvas::circle(int x, int y, int r) noexcept {
+  int dM = 3-2*r;
+    
+  for(int px=r, py=0; px>=py; py++){
+    setPixel(x+px, y+py, lineColor());
+    setPixel(x+px, y-py, lineColor());
+    setPixel(x-px, y-py, lineColor());
+    setPixel(x-px, y+py, lineColor());
+
+    setPixel(x+py, y+px, lineColor());
+    setPixel(x+py, y-px, lineColor());
+    setPixel(x-py, y-px, lineColor());
+    setPixel(x-py, y+px, lineColor());
+
+    
+    if(dM<0){
+      dM+= 4*py+6;
+    } else {
+      px--;
+      dM+= 4*(py-px)+10;
+    }
+  }
   return *this;
 }
 //-----------------------------------------------------------------------------

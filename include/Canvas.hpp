@@ -32,9 +32,6 @@ namespace GilvaPaint {
     Canvas(unsigned int width, unsigned int height)              noexcept; // Default Constructor
     Canvas(const Canvas& that)                                   noexcept; // Assign Constructor
     ~Canvas()                                                    noexcept; // Destructor
-    //static Canvas BPP8(unsigned int width, unsigned int height)  noexcept; // 8bits  per pixel image
-    //static Canvas BPP24(unsigned int width, unsigned int height) noexcept; // 24bits per pixel image
-    //static Canvas BPP32(unsigned int width, unsigned int height) noexcept; // 32bits per pixel image
 
 	
 	
@@ -49,6 +46,8 @@ namespace GilvaPaint {
     inline short   bytesPerPixel()     const noexcept;
     inline uint8_t pixel(int position) const noexcept;
     inline uint8_t pixel(int x, int y) const noexcept;
+    inline uint8_t lineColor()         const noexcept;
+    inline uint8_t fillColor()         const noexcept;
 
 
 
@@ -65,7 +64,8 @@ namespace GilvaPaint {
     Canvas& horizontalLine(int y, int xStart, int xEnd)    noexcept;
     Canvas& verticalLine(int x, int yStart, int yEnd)      noexcept;
     Canvas& rectangle(int x, int y, int width, int height) noexcept;
-	Canvas& line(int x1, int y1, int x2, int y2)           noexcept;
+    Canvas& line(int x1, int y1, int x2, int y2)           noexcept;
+    Canvas& circle(int x, int y, int r)                    noexcept;
     void    draw()                                         const noexcept;
   };
   
@@ -104,11 +104,18 @@ GilvaPaint::Canvas::pixel (int position) const noexcept {
 
 //-----------------------------------------------------------------------------
 uint8_t
-GilvaPaint::Canvas::pixel (int x, int y) const noexcept {
-  return pixel(x+ y*width());
-}
+GilvaPaint::Canvas::pixel (int x, int y) const noexcept { return pixel(x+ y*width()); }
 //-----------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------
+uint8_t
+GilvaPaint::Canvas::lineColor() const noexcept { return m_currentColor[0]; }
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+uint8_t
+GilvaPaint::Canvas::fillColor() const noexcept { return m_currentColor[1]; }
+//-----------------------------------------------------------------------------
 
 
 // --- Setters

@@ -13,20 +13,19 @@ int startSDL();
 using namespace std;
 int main(int, char**){
 
-  GilvaPaint::Canvas canvas = GilvaPaint::Canvas(16, 16);
+  GilvaPaint::Canvas canvas = GilvaPaint::Canvas(21, 21);
 
   cout << endl << endl;
   
   canvas
     .clear(' ')
-    .lineColor('1')
-    .line(0, 0, 15, 10) //Primeiro octante
-    .lineColor('2')
-    .line(0, 0, 10, 15) //Segundo octante
-    .lineColor('3')
-    .line(15, 0, 3, 15) //Terceiro octante
-    .lineColor('4')
-    .line(15, 0, 0, 8) //Quarto octante
+    .lineColor('0')
+    .line(0, 0, 10, 20)
+    .line(10, 20, 20, 0)
+    .line(20, 0, 0, 10)
+    .horizontalLine(10, 0, 20)
+    .line(20, 10, 0, 0)
+    .circle(10, 10, 10)
     .draw();
 
   cout << endl << endl;
