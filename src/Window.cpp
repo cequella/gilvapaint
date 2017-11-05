@@ -57,6 +57,8 @@ GilvaPaint::Window::draw(void(*func)(Window&, SDL_Surface*)) noexcept {
 		if(e.key.keysym.sym == SDLK_ESCAPE) quit();
 	  }
 
+	  m_mouseListener.notify(e);
+	  
 	  func(*this, m_windowSurface);
 	  SDL_UpdateWindowSurface(m_window);
 	}
@@ -69,5 +71,13 @@ GilvaPaint::Window::draw(void(*func)(Window&, SDL_Surface*)) noexcept {
 void
 GilvaPaint::Window::quit() noexcept {
   m_running = false;
+}
+//--------------------------------------------------------------------
+
+//--------------------------------------------------------------------
+GilvaPaint::Window&
+GilvaPaint::Window::addEventListener(const MouseEvent& mouseEvent) noexcept {
+  m_mouseListener.attach(mouseEvent);
+  return *this;
 }
 //--------------------------------------------------------------------

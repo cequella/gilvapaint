@@ -2,7 +2,10 @@
 #define GILVAPAINT_WINDOW_HPP
 
 #include <iostream>
+
 #include <SDL2/SDL.h>
+
+#include "MouseListener.hpp"
 
 namespace GilvaPaint {
 
@@ -17,6 +20,8 @@ namespace GilvaPaint {
 	
 	SDL_Window*  m_window        = nullptr;
 	SDL_Surface* m_windowSurface = nullptr;
+
+	MouseListener m_mouseListener = MouseListener(*this);
 	
   public:
 	Window(const char* title, unsigned int width, unsigned int height) noexcept;
@@ -27,6 +32,9 @@ namespace GilvaPaint {
 	void quit()  noexcept;
 
 	void draw(void(*func)(Window&, SDL_Surface*)) noexcept;
+
+	// Mouse events
+	Window& addEventListener(const MouseEvent& mouseEvent) noexcept;
   };
 }
 

@@ -20,3 +20,9 @@ Canvas.o:
 
 Window.o:
 	${CC} ${SRC}Window.cpp ${CPPFLAGS} -c -o ${OBJ}Window.o
+
+MouseListener.o:
+	${CC} ${SRC}MouseListener.cpp ${CPPFLAGS} -c -o ${OBJ}MouseListener.o
+
+MouseEvent.o:
+	${CC} ${SRC}MouseEvent.cpp ${CPPFLAGS} -c -o ${OBJ}MouseEvent.o
