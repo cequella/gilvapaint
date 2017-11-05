@@ -1,37 +1,42 @@
 #ifndef GILVAPAINT_CANVAS_HPP
 #define GILVAPAINT_CANVAS_HPP
 
-#include <cstdint>
-#include <cstring>
-#include <iostream> // --- Temp
 #include <algorithm>
 
-namespace GilvaPaint {
+#include <SDL2/SDL.h>
 
-  enum class BPP : short {MONOCHROME=1, RGB=3, ARGB=4};
-  
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+  #define RMASK 0xff000000
+  #define GMASK 0x00ff0000
+  #define BMASK 0x0000ff00
+  #define AMASK 0x000000ff
+#else
+  #define RMASK 0x000000ff
+  #define GMASK 0x0000ff00
+  #define BMASK 0x00ff0000
+  #define AMASK 0xff000000
+#endif
+
+namespace GilvaPaint {
   class Canvas {
   private:
-    int      m_dimen[2];
-    BPP      m_bpp;
-    uint8_t *m_content;
-    uint8_t  m_currentColor[2] = {0, 0};
+    int          m_dimen[2];
+	SDL_Surface* m_content         = nullptr;
+    Uint32       m_currentColor[2] = {0, 0};
 	
-    Canvas(unsigned int width, unsigned int height, BPP canvasBPP) noexcept; // Default Constructor
-
     // --- Helpers
     int correctPosition(int position)      const noexcept;
     int clamp(int value, int MAX, int MIN) const noexcept;
 	
     // --- Unsafe Operations
-    Canvas& setPixel(int position, uint8_t color) noexcept;
-    Canvas& setPixel(int x, int y, uint8_t color) noexcept;
+    Canvas& setPixel(int position, Uint32 color) noexcept;
+    Canvas& setPixel(int x, int y, Uint32 color) noexcept;
 	
   public:
     // --- Memory Management
-    Canvas(unsigned int width, unsigned int height)              noexcept; // Default Constructor
-    Canvas(const Canvas& that)                                   noexcept; // Assign Constructor
-    ~Canvas()                                                    noexcept; // Destructor
+    Canvas(unsigned int width, unsigned int height) noexcept; // Default Constructor
+    Canvas(const Canvas& that)                      noexcept; // Assign Constructor
+    ~Canvas()                                       noexcept; // Destructor
 
 	
 	
@@ -40,34 +45,33 @@ namespace GilvaPaint {
 	
 
     // --- Getters
-    inline int     width()             const noexcept;
-    inline int     height()            const noexcept;
-    inline int     size()              const noexcept;
-    inline short   bytesPerPixel()     const noexcept;
-    inline uint8_t pixel(int position) const noexcept;
-    inline uint8_t pixel(int x, int y) const noexcept;
-    inline uint8_t lineColor()         const noexcept;
-    inline uint8_t fillColor()         const noexcept;
+    inline int    width()             const noexcept;
+    inline int    height()            const noexcept;
+    inline int    size()              const noexcept;
+    inline Uint32 pixel(int position) const noexcept;
+    inline Uint32 pixel(int x, int y) const noexcept;
+    inline Uint32 lineColor()         const noexcept;
+    inline Uint32 fillColor()         const noexcept;
 
 
 
     // --- Setters
-    inline Canvas& lineColor(uint8_t color)           noexcept;
-    inline Canvas& fillColor(uint8_t color)           noexcept;
-    inline Canvas& pixel(int position, uint8_t color) noexcept;
-    inline Canvas& pixel(int x, int y, uint8_t color) noexcept;
+    inline Canvas& lineColor(Uint32 color)           noexcept;
+    inline Canvas& fillColor(Uint32 color)           noexcept;
+    inline Canvas& pixel(int position, Uint32 color) noexcept;
+    inline Canvas& pixel(int x, int y, Uint32 color) noexcept;
 	
 
 
     // --- Methods
-    Canvas& clear(uint8_t color)                           noexcept;
+    Canvas& clear(Uint32 color)                            noexcept;
     Canvas& horizontalLine(int y, int xStart, int xEnd)    noexcept;
     Canvas& verticalLine(int x, int yStart, int yEnd)      noexcept;
     Canvas& rectangle(int x, int y, int width, int height) noexcept;
     Canvas& line(int x1, int y1, int x2, int y2)           noexcept;
     Canvas& circle(int x, int y, int r)                    noexcept;
     Canvas& ellipse(int x, int y, int rh, int rv)          noexcept;
-    void    draw()                                         const noexcept;
+    void    drawOver(SDL_Surface* surface)                 const noexcept;
   };
   
 }
@@ -91,30 +95,26 @@ GilvaPaint::Canvas::size() const noexcept { return width()*height(); }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-short
-GilvaPaint::Canvas::bytesPerPixel() const noexcept { return static_cast<short>(m_bpp); }
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
-uint8_t
+Uint32
 GilvaPaint::Canvas::pixel (int position) const noexcept {
   position = correctPosition(position);
-  return m_content[position];
+  Uint32* temp = (Uint32*)m_content->pixels;
+  return temp[position];
 }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-uint8_t
+Uint32
 GilvaPaint::Canvas::pixel (int x, int y) const noexcept { return pixel(x+ y*width()); }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-uint8_t
+Uint32
 GilvaPaint::Canvas::lineColor() const noexcept { return m_currentColor[0]; }
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-uint8_t
+Uint32
 GilvaPaint::Canvas::fillColor() const noexcept { return m_currentColor[1]; }
 //-----------------------------------------------------------------------------
 
@@ -122,7 +122,7 @@ GilvaPaint::Canvas::fillColor() const noexcept { return m_currentColor[1]; }
 // --- Setters
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas&
-GilvaPaint::Canvas::lineColor(uint8_t color) noexcept {
+GilvaPaint::Canvas::lineColor(Uint32 color) noexcept {
   m_currentColor[0] = color;
   return *this;
 }
@@ -130,7 +130,7 @@ GilvaPaint::Canvas::lineColor(uint8_t color) noexcept {
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas&
-GilvaPaint::Canvas::fillColor(uint8_t color) noexcept {
+GilvaPaint::Canvas::fillColor(Uint32 color) noexcept {
   m_currentColor[1] = color;
   return *this;
 }
@@ -138,10 +138,10 @@ GilvaPaint::Canvas::fillColor(uint8_t color) noexcept {
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas&
-GilvaPaint::Canvas::pixel (int position, uint8_t color) noexcept {
-  position = static_cast<int>( correctPosition(position) );
-
-  m_content[position] = color;
+GilvaPaint::Canvas::pixel (int position, Uint32 color) noexcept {
+  if(position < 0 or position>width()*height()) return *this; // Clipping
+  Uint32* temp = (Uint32*)m_content->pixels;
+  temp[position] = color;
 
   return *this;
 }
@@ -149,11 +149,12 @@ GilvaPaint::Canvas::pixel (int position, uint8_t color) noexcept {
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas&
-GilvaPaint::Canvas::pixel (int x, int y, uint8_t color) noexcept {
-  int position = x*width()+y;
-  position = static_cast<int>( correctPosition(position) );
+GilvaPaint::Canvas::pixel (int x, int y, Uint32 color) noexcept {
+  if(x<0 or x>width() or y<0 or y>height()) return *this; // Clipping
 
-  m_content[position] = color;
+  int position = x+y*width();
+  Uint32* temp = (Uint32*)m_content->pixels;
+  temp[position] = color;
 
   return *this;
 }
