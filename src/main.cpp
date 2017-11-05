@@ -12,7 +12,6 @@ int startSDL();
 
 using namespace std;
 int main(int, char**){
-
   GilvaPaint::Canvas canvas = GilvaPaint::Canvas(21, 21);
 
   cout << endl << endl;
@@ -20,12 +19,12 @@ int main(int, char**){
   canvas
     .clear(' ')
     .lineColor('0')
-    .line(0, 0, 10, 20)
-    .line(10, 20, 20, 0)
-    .line(20, 0, 0, 10)
-    .horizontalLine(10, 0, 20)
-    .line(20, 10, 0, 0)
-    .circle(10, 10, 10)
+	// .line(0, 0, 20, 8)
+	// .line(0, 0, 20, 18)
+	// .line(20, 0, 0, 8)
+	// .line(20, 0, 0, 18)
+	// .circle(10, 10, 10)
+	.ellipse(10, 10, 9, 7)
     .draw();
 
   cout << endl << endl;
@@ -54,9 +53,9 @@ int startSDL(){
   }
 
   window = SDL_CreateWindow(SCREEN_TITLE,
-			    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			    SCREEN_WIDTH, SCREEN_HEIGHT,
-			    SCREEN_FLAGS);
+							SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+							SCREEN_WIDTH, SCREEN_HEIGHT,
+							SCREEN_FLAGS);
   if( window==NULL ){
     cerr << SDL_GetError() << endl;
     return 1;

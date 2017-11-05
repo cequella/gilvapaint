@@ -66,6 +66,7 @@ namespace GilvaPaint {
     Canvas& rectangle(int x, int y, int width, int height) noexcept;
     Canvas& line(int x1, int y1, int x2, int y2)           noexcept;
     Canvas& circle(int x, int y, int r)                    noexcept;
+    Canvas& ellipse(int x, int y, int rh, int rv)          noexcept;
     void    draw()                                         const noexcept;
   };
   

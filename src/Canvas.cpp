@@ -5,23 +5,23 @@
 // --- Memory Management
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(unsigned int width, unsigned int height, BPP canvasBPP) noexcept
-: m_dimen{static_cast<int>(width), static_cast<int>(height)},
-  m_bpp(canvasBPP),
-  m_content( new uint8_t[size()*bytesPerPixel()] )
+  : m_dimen{static_cast<int>(width), static_cast<int>(height)},
+	m_bpp(canvasBPP),
+	m_content( new uint8_t[size()*bytesPerPixel()] )
 {}
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(unsigned int width, unsigned int height) noexcept
-: GilvaPaint::Canvas(width, height, BPP::MONOCHROME)
+  : GilvaPaint::Canvas(width, height, BPP::MONOCHROME)
 {}
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(const Canvas& that) noexcept
-: m_dimen{that.width(), that.height()},
-  m_bpp( static_cast<BPP>(that.bytesPerPixel()) ),
-  m_content( new uint8_t[size()*bytesPerPixel()] )
+  : m_dimen{that.width(), that.height()},
+	m_bpp( static_cast<BPP>(that.bytesPerPixel()) ),
+	m_content( new uint8_t[size()*bytesPerPixel()] )
 {
   memcpy(m_content, that.m_content, that.size()*that.bytesPerPixel());
 }
@@ -188,11 +188,8 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
   const int dy = y2-y1;
   int px=x1, py=y1, dM;
 
-  auto moveRight   = [&dM, dy](){ dM += 2*dy; };
-  auto moveUpRight = [&dM, dx, dy](){ dM += 2*(dy-dx); };
-  auto moveUp      = [&dM, dx](){ dM -= 2*dx; };
-  auto moveUpLeft  = [&dM, dx, dy](){ dM -= 2*(dy+dx); };
-  auto moveLeft    = [&dM, dy](){ dM -= 2*dy; };
+  auto moveRight= [dy](){ return 2*dy; };
+  auto moveUp   = [dx](){ return -2*dx; };
   
   if( dx > 0 ){
 
@@ -201,13 +198,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Primeiro octante */
       dM=2*dy-dx;
       for(; px<=x2; px++){
-	setPixel(px, py, lineColor());
-	if(dM>0){
-	  py++;
-	  moveUpRight();
-	} else {
-	  moveRight();
-	}
+		setPixel(px, py, lineColor());
+		if(dM>0){
+		  py++;
+		  dM += moveUp();
+		}
+		dM += moveRight();
       }
     
     } else {
@@ -215,13 +211,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Segundo octante */
       dM=dy-2*dx;
       for(; py<=y2; py++){
-	setPixel(px, py, lineColor());
-	if(dM>0){
-	  moveUp();
-	} else {
-	  px++;
-	  moveUpRight();
-	}
+		setPixel(px, py, lineColor());
+		if(dM<0) {
+		  px++;
+		  dM += moveRight();
+		}
+		dM += moveUp();
       }
     
     }
@@ -232,13 +227,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Terceiro octante */
       dM=-2*dx-dy;
       for(; py<=y2; py++){
-	setPixel(px, py, lineColor());
-	if(dM>0){
-	  px--;
-	  moveUpLeft();
-	} else {
-	  moveUp();
-	}
+		setPixel(px, py, lineColor());
+		if(dM>0){
+		  px--;
+		  dM -= moveRight();
+		}
+		dM += moveUp();
       }
       
     } else {
@@ -246,13 +240,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Quarto octante */
       dM=-2*dy-dx;
       for(; px>=x2; px--){
-	setPixel(px, py, lineColor());
-	if(dM>0){
-	  moveLeft();
-	} else {
-	  py++;
-	  moveUpLeft();
-	}
+		setPixel(px, py, lineColor());
+		if(dM<0) {
+		  py++;
+		  dM += moveUp();
+		}
+		dM -= moveRight();
       }
       
     }
@@ -279,13 +272,62 @@ GilvaPaint::Canvas::circle(int x, int y, int r) noexcept {
     setPixel(x-py, y+px, lineColor());
 
     
-    if(dM<0){
-      dM+= 4*py+6;
-    } else {
+    if(dM>0){
       px--;
-      dM+= 4*(py-px)+10;
+	  dM+= -4*px +4;
     }
+	dM+= 4*py +6;
   }
+  return *this;
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+GilvaPaint::Canvas&
+GilvaPaint::Canvas::ellipse(int x, int y, int rh, int rv) noexcept {
+  const int qrt_rh = rh*rh;
+  const int qrt_rv = rv*rv;
+
+  auto tangent  = [qrt_rh, qrt_rv](int x, int y){ return (not y)?0:(-2*qrt_rv*x)/(2*qrt_rh*y); };
+  auto moveUp   = [qrt_rh](int y){ return qrt_rh*(1 +2*y); };
+  auto moveRight= [qrt_rv](int x){ return qrt_rv*(1 +2*x); };
+  
+  int px, py, dM;
+  
+  // First iteration
+  px = rh;
+  py = 0;
+  dM = qrt_rv*(1/4 -px) +qrt_rh*(1+ 2*py);
+  for(; tangent(px, py) not_eq -1; py++){
+	setPixel(x+px, y+py, lineColor());
+	setPixel(x+px, y-py, lineColor());
+	setPixel(x-px, y-py, lineColor());
+	setPixel(x-px, y+py, lineColor());
+	
+	if(dM > 0){
+	  px--;
+	  dM -= moveRight(px);
+	}
+	dM += moveUp(py);
+  }
+
+  // Second iteration
+  px = 0;
+  py = rv;
+  dM = qrt_rv*(1 +2*px) +qrt_rh*(1/4 -2*py);
+  for(; tangent(px, py) not_eq -1; px++){
+	setPixel(x+px, y+py, lineColor());
+	setPixel(x+px, y-py, lineColor());
+	setPixel(x-px, y-py, lineColor());
+	setPixel(x-px, y+py, lineColor());
+	
+	if(dM > 0){
+	  py--;
+	  dM -= moveUp(py);
+	}
+	dM += moveRight(px);
+  }
+  
   return *this;
 }
 //-----------------------------------------------------------------------------
