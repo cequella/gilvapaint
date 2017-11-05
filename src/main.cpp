@@ -2,77 +2,40 @@
 #include <SDL2/SDL.h>
 
 #include "Canvas.hpp"
+#include "Window.hpp"
 
-const char*  SCREEN_TITLE  = "GilvaPaint";
-const int    SCREEN_WIDTH  = 640;
-const int    SCREEN_HEIGHT = 480;
-const Uint32 SCREEN_FLAGS  = SDL_WINDOW_SHOWN;//|SDL_WINDOW_OPENGL;
-
-int startSDL();
+const char* SCREEN_TITLE  = "GilvaPaint";
+const int   SCREEN_WIDTH  = 640;
+const int   SCREEN_HEIGHT = 480;
 
 using namespace std;
-int main(int, char**){
 
-  GilvaPaint::Canvas canvas = GilvaPaint::Canvas(16, 16);
+void draw(GilvaPaint::Window& window, SDL_Surface* surface){
+  window.clear();
 
-  cout << endl << endl;
-  
+  GilvaPaint::Canvas canvas = GilvaPaint::Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+
   canvas
-    .clear(' ')
-    .lineColor('1')
-    .line(0, 0, 15, 10) //Primeiro octante
-    .lineColor('2')
-    .line(0, 0, 10, 15) //Segundo octante
-    .lineColor('3')
-    .line(15, 0, 3, 15) //Terceiro octante
-    .lineColor('4')
-    .line(15, 0, 0, 8) //Quarto octante
-    .draw();
-
-  cout << endl << endl;
-  
-  return 0;
-  //return startSDL();
+	.lineColor(0xff0000ff)
+	.horizontalLine(50, 0, 300)
+	.verticalLine(50, 0, 300)
+	.line(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT/2-50)
+	.line(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT/2+50)
+	.line(SCREEN_WIDTH, 0, 0, SCREEN_HEIGHT/2-50)
+	.line(SCREEN_WIDTH, 0, 0, SCREEN_HEIGHT/2+50)
+	.circle(100, 100, 50)
+	.rectangle(300, 300, 100, 150)
+	.ellipse(0, 200, 200, 100)
+	.drawOver(surface);
 }
 
+int main(int, char**){
+  GilvaPaint::Window window = GilvaPaint::Window(SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-
-
-
-
-
-
-
-
-
-int startSDL(){
-  SDL_Window*  window        = nullptr;
-  SDL_Surface* windowSurface = nullptr;
-
-  if( SDL_Init(SDL_INIT_VIDEO)<0 ){
-    cerr << SDL_GetError() << endl;
-    return 1;
+  if( !window.init() ){
+	return 1;
   }
-
-  window = SDL_CreateWindow(SCREEN_TITLE,
-			    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			    SCREEN_WIDTH, SCREEN_HEIGHT,
-			    SCREEN_FLAGS);
-  if( window==NULL ){
-    cerr << SDL_GetError() << endl;
-    return 1;
-  }
-  windowSurface = SDL_GetWindowSurface( window );
-
-  // ------------------------------
-
-  SDL_FillRect( windowSurface, NULL, SDL_MapRGB(windowSurface->format, 0, 0, 0) );
-  SDL_UpdateWindowSurface(window);
-
-  SDL_Delay(500);
-
-  SDL_DestroyWindow(window);
-  SDL_Quit();
+  window.draw(draw);
 
   return 0;
 }
