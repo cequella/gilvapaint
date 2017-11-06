@@ -9,7 +9,7 @@ BIN= bin/
 INC= include/
 
 all: 
-	${CC} ${SRC}main.cpp ${CPPFLAGS} ${LINKER_FLAGS} -o ${BIN}gilvapaint ${OBJ}*
+	${CC} ${SRC}main.cpp ${CPPFLAGS} ${LINKER_FLAGS} -o ${BIN}gilvapaint ${OBJ}* `sdl2-config --cflags --libs`
 
 run:
 	@./bin/gilvapaint

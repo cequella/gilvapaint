@@ -6,22 +6,22 @@
 #include <SDL2/SDL.h>
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-  #define RMASK 0xff000000
-  #define GMASK 0x00ff0000
-  #define BMASK 0x0000ff00
-  #define AMASK 0x000000ff
+#define RMASK 0xff000000
+#define GMASK 0x00ff0000
+#define BMASK 0x0000ff00
+#define AMASK 0x000000ff
 #else
-  #define RMASK 0x000000ff
-  #define GMASK 0x0000ff00
-  #define BMASK 0x00ff0000
-  #define AMASK 0xff000000
+#define RMASK 0x000000ff
+#define GMASK 0x0000ff00
+#define BMASK 0x00ff0000
+#define AMASK 0xff000000
 #endif
 
 namespace GilvaPaint {
   class Canvas {
   private:
     int          m_dimen[2];
-	SDL_Surface* m_content         = nullptr;
+    SDL_Surface* m_content         = nullptr;
     Uint32       m_currentColor[2] = {0, 0};
 	
     // --- Helpers
@@ -150,7 +150,7 @@ GilvaPaint::Canvas::pixel (int position, Uint32 color) noexcept {
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas&
 GilvaPaint::Canvas::pixel (int x, int y, Uint32 color) noexcept {
-  if(x<0 or x>width() or y<0 or y>height()) return *this; // Clipping
+  if(x<0 or x>=width() or y<0 or y>=height()) return *this; // Clipping
 
   int position = x+y*width();
   Uint32* temp = (Uint32*)m_content->pixels;
