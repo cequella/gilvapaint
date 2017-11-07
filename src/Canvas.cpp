@@ -5,12 +5,12 @@
 // --- Memory Management
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(unsigned int width, unsigned int height) noexcept
-: m_dimen{static_cast<int>(width), static_cast<int>(height)} {
+  : m_dimen{static_cast<int>(width), static_cast<int>(height)} {
   
   m_content = SDL_CreateRGBSurface(0,
-				   width, height,
-				   32,
-				   RMASK, GMASK, BMASK, AMASK);
+								   width, height,
+								   32,
+								   RMASK, GMASK, BMASK, AMASK);
 
   SDL_FillRect(m_content, NULL, SDL_MapRGBA(m_content->format, 0, 0, 0, 255));
 }
@@ -18,12 +18,12 @@ GilvaPaint::Canvas::Canvas(unsigned int width, unsigned int height) noexcept
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(const Canvas& that) noexcept
-: m_dimen{that.width(), that.height()} {
+  : m_dimen{that.width(), that.height()} {
 
   m_content = SDL_CreateRGBSurface(0,
-				   that.width(), that.height(),
-				   32,
-				   RMASK, GMASK, BMASK, AMASK);
+								   that.width(), that.height(),
+								   32,
+								   RMASK, GMASK, BMASK, AMASK);
   
   SDL_BlitSurface(that.m_content, NULL, m_content, NULL);
 }
@@ -46,9 +46,9 @@ GilvaPaint::Canvas::operator = (const Canvas& that) noexcept {
   m_dimen[1] = that.height();
 
   m_content = SDL_CreateRGBSurface(0,
-				   that.width(), that.height(),
-				   32,
-				   RMASK, GMASK, BMASK, AMASK);
+								   that.width(), that.height(),
+								   32,
+								   RMASK, GMASK, BMASK, AMASK);
 
   SDL_BlitSurface(that.m_content, NULL, m_content, NULL);
   
@@ -209,12 +209,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Primeiro octante */
       dM=2*dy-dx;
       for(; px<x2; px++){
-	setPixel(px, py, lineColor());
-	if(dM>0){
-	  py++;
-	  dM += moveUp();
-	}
-	dM += moveRight();
+		setPixel(px, py, lineColor());
+		if(dM>0){
+		  py++;
+		  dM += moveUp();
+		}
+		dM += moveRight();
       }
     
     } else {
@@ -222,12 +222,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Segundo octante */
       dM=dy-2*dx;
       for(; py<y2; py++){
-	setPixel(px, py, lineColor());
-	if(dM<0) {
-	  px++;
-	  dM += moveRight();
-	}
-	dM += moveUp();
+		setPixel(px, py, lineColor());
+		if(dM<0) {
+		  px++;
+		  dM += moveRight();
+		}
+		dM += moveUp();
       }
     
     }
@@ -238,12 +238,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Terceiro octante */
       dM=-2*dx-dy;
       for(; py<y2; py++){
-	setPixel(px, py, lineColor());
-	if(dM>0){
-	  px--;
-	  dM -= moveRight();
-	}
-	dM += moveUp();
+		setPixel(px, py, lineColor());
+		if(dM>0){
+		  px--;
+		  dM -= moveRight();
+		}
+		dM += moveUp();
       }
       
     } else {
@@ -251,12 +251,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Quarto octante */
       dM=-2*dy-dx;
       for(; px>x2; px--){
-	setPixel(px, py, lineColor());
-	if(dM<0) {
-	  py++;
-	  dM += moveUp();
-	}
-	dM -= moveRight();
+		setPixel(px, py, lineColor());
+		if(dM<0) {
+		  py++;
+		  dM += moveUp();
+		}
+		dM -= moveRight();
       }
       
     }
@@ -269,11 +269,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas&
-GilvaPaint::Canvas::circle(int x, int y, int r) noexcept {
-  int dM = 3-2*r;
+GilvaPaint::Canvas::circle(int x, int y, int radius) noexcept {
+  if(radius<0) radius = -radius;
+  int dM = 3-2*radius;
 
   SDL_LockSurface(m_content);
-  for(int px=r, py=0; px>=py; py++){
+  for(int px=radius, py=0; px>=py; py++){
     pixel(x+px, y+py, lineColor())
       .pixel(x+px, y-py, lineColor())
       .pixel(x-px, y-py, lineColor())
@@ -299,49 +300,54 @@ GilvaPaint::Canvas::circle(int x, int y, int r) noexcept {
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas&
-GilvaPaint::Canvas::ellipse(int x, int y, int rh, int rv) noexcept {
-  if(rh==0 or rv==0) return *this;
+GilvaPaint::Canvas::ellipse(int x, int y, int a, int b) noexcept {
+  if(a==0 or b==0){
+	return *this;
+  }
+  a = std::abs(a);
+  b = std::abs(b);
   
-  const int qrt_rh = rh*rh;
-  const int qrt_rv = rv*rv;
+  const int a2 = a*a;
+  const int b2 = b*b;
 
-  auto tangent      =[qrt_rh, qrt_rv](int x, int y){ return (not y)?0:(-2*qrt_rv*x)/(2*qrt_rh*y); };
-  auto moveUp       =[qrt_rh](int y){ return qrt_rh*(1 +2*y); };
-  auto moveRight    =[qrt_rv](int x){ return qrt_rv*(1 +2*x); };
+  int px, py, dM;
+  
+  auto moveUp       =[a2](int py){ return a2*(1 +2*py); };
+  auto moveDown     =[a2](int py){ return a2*(1 -2*py); };
+  auto moveRight    =[b2](int px){ return b2*(1 +2*px); };
+  auto moveLeft     =[b2](int px){ return b2*(1 -2*px); };
   auto drawQuarters =[this, x, y](int px, int py){
     pixel(x+px, y+py, lineColor())
     .pixel(x+px, y-py, lineColor())
     .pixel(x-px, y-py, lineColor())
     .pixel(x-px, y+py, lineColor());
   };
-  
-  int px, py, dM;
 
   SDL_LockSurface(m_content);
   // First iteration
-  px = rh;
+  px = a;
   py = 0;
-  dM = qrt_rv*(1/4 -px) +qrt_rh*(1+ 2*py);
-  for(; tangent(px, py) not_eq -1; py++){
+  dM = b2*(1/4 -px) +a2*(1+ 2*py);
+  for(; a2*py<=b2*px; py++){
     drawQuarters(px, py);
 	
     if(dM > 0){
       px--;
-      dM -= moveRight(px);
+      dM += moveLeft(px);
     }
     dM += moveUp(py);
   }
 
   // Second iteration
   px = 0;
-  py = rv;
-  dM = qrt_rv*(1 +2*px) +qrt_rh*(1/4 -2*py);
-  for(; tangent(px, py) not_eq -1; px++){
+  py = b;
+  dM = b2*(1 +2*px) +a2*(1/4 -2*py);
+  for(; b2*px<=a2*py; px++){
     drawQuarters(px, py);
 	
     if(dM > 0){
       py--;
-      dM -= moveUp(py);
+      dM += moveDown(py);
     }
     dM += moveRight(px);
   }
