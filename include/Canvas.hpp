@@ -2,6 +2,7 @@
 #define GILVAPAINT_CANVAS_HPP
 
 #include <algorithm>
+#include <vector>
 
 #include <SDL2/SDL.h>
 
@@ -71,6 +72,7 @@ namespace GilvaPaint {
     Canvas& line(int x1, int y1, int x2, int y2)           noexcept;
     Canvas& circle(int x, int y, int r)                    noexcept;
     Canvas& ellipse(int x, int y, int rh, int rv)          noexcept;
+    Canvas& polygon(std::vector<int> coord)                noexcept;
     void    drawOver(SDL_Surface* surface)                 const noexcept;
   };
   

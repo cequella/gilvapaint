@@ -8,7 +8,7 @@ SRC= src/
 BIN= bin/
 INC= include/
 
-all: 
+all:
 	${CC} ${SRC}main.cpp ${CPPFLAGS} ${LINKER_FLAGS} -o ${BIN}gilvapaint ${OBJ}* `sdl2-config --cflags --libs`
 
 run:

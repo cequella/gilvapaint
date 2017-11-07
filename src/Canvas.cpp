@@ -5,12 +5,12 @@
 // --- Memory Management
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(unsigned int width, unsigned int height) noexcept
-  : m_dimen{static_cast<int>(width), static_cast<int>(height)} {
+: m_dimen{static_cast<int>(width), static_cast<int>(height)} {
   
   m_content = SDL_CreateRGBSurface(0,
-								   width, height,
-								   32,
-								   RMASK, GMASK, BMASK, AMASK);
+				   width, height,
+				   32,
+				   RMASK, GMASK, BMASK, AMASK);
 
   SDL_FillRect(m_content, NULL, SDL_MapRGBA(m_content->format, 0, 0, 0, 255));
 }
@@ -18,12 +18,12 @@ GilvaPaint::Canvas::Canvas(unsigned int width, unsigned int height) noexcept
 
 //-----------------------------------------------------------------------------
 GilvaPaint::Canvas::Canvas(const Canvas& that) noexcept
-  : m_dimen{that.width(), that.height()} {
+: m_dimen{that.width(), that.height()} {
 
   m_content = SDL_CreateRGBSurface(0,
-								   that.width(), that.height(),
-								   32,
-								   RMASK, GMASK, BMASK, AMASK);
+				   that.width(), that.height(),
+				   32,
+				   RMASK, GMASK, BMASK, AMASK);
   
   SDL_BlitSurface(that.m_content, NULL, m_content, NULL);
 }
@@ -46,9 +46,9 @@ GilvaPaint::Canvas::operator = (const Canvas& that) noexcept {
   m_dimen[1] = that.height();
 
   m_content = SDL_CreateRGBSurface(0,
-								   that.width(), that.height(),
-								   32,
-								   RMASK, GMASK, BMASK, AMASK);
+				   that.width(), that.height(),
+				   32,
+				   RMASK, GMASK, BMASK, AMASK);
 
   SDL_BlitSurface(that.m_content, NULL, m_content, NULL);
   
@@ -209,12 +209,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Primeiro octante */
       dM=2*dy-dx;
       for(; px<x2; px++){
-		setPixel(px, py, lineColor());
-		if(dM>0){
-		  py++;
-		  dM += moveUp();
-		}
-		dM += moveRight();
+	setPixel(px, py, lineColor());
+	if(dM>0){
+	  py++;
+	  dM += moveUp();
+	}
+	dM += moveRight();
       }
     
     } else {
@@ -222,12 +222,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Segundo octante */
       dM=dy-2*dx;
       for(; py<y2; py++){
-		setPixel(px, py, lineColor());
-		if(dM<0) {
-		  px++;
-		  dM += moveRight();
-		}
-		dM += moveUp();
+	setPixel(px, py, lineColor());
+	if(dM<0) {
+	  px++;
+	  dM += moveRight();
+	}
+	dM += moveUp();
       }
     
     }
@@ -238,12 +238,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Terceiro octante */
       dM=-2*dx-dy;
       for(; py<y2; py++){
-		setPixel(px, py, lineColor());
-		if(dM>0){
-		  px--;
-		  dM -= moveRight();
-		}
-		dM += moveUp();
+	setPixel(px, py, lineColor());
+	if(dM>0){
+	  px--;
+	  dM -= moveRight();
+	}
+	dM += moveUp();
       }
       
     } else {
@@ -251,12 +251,12 @@ GilvaPaint::Canvas::line(int x1, int y1, int x2, int y2) noexcept {
       /* Quarto octante */
       dM=-2*dy-dx;
       for(; px>x2; px--){
-		setPixel(px, py, lineColor());
-		if(dM<0) {
-		  py++;
-		  dM += moveUp();
-		}
-		dM -= moveRight();
+	setPixel(px, py, lineColor());
+	if(dM<0) {
+	  py++;
+	  dM += moveUp();
+	}
+	dM -= moveRight();
       }
       
     }
@@ -302,7 +302,7 @@ GilvaPaint::Canvas::circle(int x, int y, int radius) noexcept {
 GilvaPaint::Canvas&
 GilvaPaint::Canvas::ellipse(int x, int y, int a, int b) noexcept {
   if(a==0 or b==0){
-	return *this;
+    return *this;
   }
   a = std::abs(a);
   b = std::abs(b);
@@ -352,6 +352,20 @@ GilvaPaint::Canvas::ellipse(int x, int y, int a, int b) noexcept {
     dM += moveRight(px);
   }
   SDL_UnlockSurface(m_content);
+  
+  return *this;
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+GilvaPaint::Canvas&
+GilvaPaint::Canvas::polygon(std::vector<int> coord) noexcept {
+  if(coord.size()<4) return *this;
+
+  int size = coord.size()/4;
+  for(int i=0; i<size+1; i++){
+    line(coord.at(2*i), coord.at(2*i +1), coord.at(2*i +2), coord.at(2*i +3));
+  }
   
   return *this;
 }
